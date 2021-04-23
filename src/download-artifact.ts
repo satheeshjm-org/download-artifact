@@ -6,10 +6,11 @@ import {Inputs, Outputs} from './constants'
 
 const sleep = t => new Promise(s => setTimeout(s, t));
 async function run(): Promise<void> {
+
+  const retry = core.getInput(Inputs.Retry, {required: false})
   try {
     const name = core.getInput(Inputs.Name, {required: false})
     const path = core.getInput(Inputs.Path, {required: false})
-    const retry = core.getInput(Inputs.Retry, {required: false})
 
     let resolvedPath
     // resolve tilde expansions, path.replace only replaces the first occurrence of a pattern
