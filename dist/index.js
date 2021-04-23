@@ -7788,6 +7788,7 @@ var Inputs;
     Inputs["Name"] = "name";
     Inputs["Path"] = "path";
     Inputs["Retry"] = "retry";
+    Inputs["RetryTimeout"] = "retry_timeout";
 })(Inputs || (Inputs = {}));
 var Outputs;
 (function (Outputs) {
@@ -7809,10 +7810,13 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 
 
 
+const retry = core.getInput(Inputs.Retry, { required: false });
+const retryTimeoutStr = core.getInput(Inputs.RetryTimeout, { required: false });
+const retryTimeout = parseInt(retryTimeoutStr || '60');
+const startTime = new Date().getTime();
 const sleep = t => new Promise(s => setTimeout(s, t));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
-        const retry = core.getInput(Inputs.Retry, { required: false });
         try {
             const name = core.getInput(Inputs.Name, { required: false });
             const path = core.getInput(Inputs.Path, { required: false });
@@ -7851,15 +7855,17 @@ function run() {
             core.info('Artifact download has finished successfully');
         }
         catch (err) {
-            core.info(`Retry parameter ${retry}`);
+            core.error(err.message);
             if (retry) {
-                core.info(`Sleeping for 1 second`);
-                yield sleep(1000);
-                yield run();
+                const now = new Date().getTime();
+                if (now <= startTime + retryTimeout * 1000) {
+                    core.info(`Retrying download`);
+                    yield sleep(1000);
+                    yield run();
+                    return;
+                }
             }
-            else {
-                core.setFailed(err.message);
-            }
+            core.setFailed(err.message);
         }
     });
 }
