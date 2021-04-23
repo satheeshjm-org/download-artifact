@@ -4,6 +4,17 @@ import * as os from 'os'
 import {resolve} from 'path'
 import {Inputs, Outputs} from './constants'
 
+const retry = core.getInput(Inputs.Retry, {required: false}) === 'true'
+const retryTimeout = parseInt(
+  core.getInput(Inputs.RetryTimeout, {required: false}) || '60'
+)
+const retryInterval = parseInt(
+  core.getInput(Inputs.RetryInterval, {required: false}) || '1'
+)
+
+const startTime = new Date().getTime()
+
+const sleep = t => new Promise(s => setTimeout(s, t))
 async function run(): Promise<void> {
   try {
     const name = core.getInput(Inputs.Name, {required: false})
@@ -54,6 +65,16 @@ async function run(): Promise<void> {
     core.setOutput(Outputs.DownloadPath, resolvedPath)
     core.info('Artifact download has finished successfully')
   } catch (err) {
+    core.error(err.message)
+    if (retry) {
+      const now = new Date().getTime()
+      if (now <= startTime + retryTimeout * 1000) {
+        core.info(`Retrying download`)
+        await sleep(retryInterval * 1000)
+        await run()
+        return
+      }
+    }
     core.setFailed(err.message)
   }
 }
