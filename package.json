@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/actions/download-artifact.git"
+    "url": "git+https://github.com/satheeshjm-org/download-artifact.git"
   },
   "keywords": [
     "Actions",
@@ -24,9 +24,9 @@
   "author": "GitHub",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/actions/download-artifact/issues"
+    "url": "https://github.com/satheeshjm-org/download-artifact/issues"
   },
-  "homepage": "https://github.com/actions/download-artifact#readme",
+  "homepage": "https://github.com/satheeshjm-org/download-artifact#readme",
   "dependencies": {
     "@actions/artifact": "^0.5.1",
     "@actions/core": "^1.2.6"
