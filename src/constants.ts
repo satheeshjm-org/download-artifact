@@ -1,6 +1,7 @@
 export enum Inputs {
   Name = 'name',
-  Path = 'path'
+  Path = 'path',
+  Retry = 'retry'
 }
 export enum Outputs {
   DownloadPath = 'download-path'
