@@ -7789,6 +7789,7 @@ var Inputs;
     Inputs["Path"] = "path";
     Inputs["Retry"] = "retry";
     Inputs["RetryTimeout"] = "retry_timeout";
+    Inputs["RetryInterval"] = "retry_interval";
 })(Inputs || (Inputs = {}));
 var Outputs;
 (function (Outputs) {
@@ -7810,9 +7811,9 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 
 
 
-const retry = core.getInput(Inputs.Retry, { required: false });
-const retryTimeoutStr = core.getInput(Inputs.RetryTimeout, { required: false });
-const retryTimeout = parseInt(retryTimeoutStr || '60');
+const retry = core.getInput(Inputs.Retry, { required: false }) === 'true';
+const retryTimeout = parseInt(core.getInput(Inputs.RetryTimeout, { required: false }) || '60');
+const retryInterval = parseInt(core.getInput(Inputs.RetryInterval, { required: false }) || '1');
 const startTime = new Date().getTime();
 const sleep = t => new Promise(s => setTimeout(s, t));
 function run() {
@@ -7860,7 +7861,7 @@ function run() {
                 const now = new Date().getTime();
                 if (now <= startTime + retryTimeout * 1000) {
                     core.info(`Retrying download`);
-                    yield sleep(1000);
+                    yield sleep(retryInterval * 1000);
                     yield run();
                     return;
                 }
