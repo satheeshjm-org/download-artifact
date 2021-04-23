@@ -15,7 +15,7 @@ inputs:
     description: 'Should Retry Timeout (in seconds)'
     required: false
   retry_interval:
-    description: 'Retry Interval (in seconds)',
+    description: 'Retry Interval (in seconds)'
     required: false
 runs:
   using: 'node12'
