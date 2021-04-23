@@ -56,7 +56,9 @@ async function run(): Promise<void> {
     core.setOutput(Outputs.DownloadPath, resolvedPath)
     core.info('Artifact download has finished successfully')
   } catch (err) {
+    core.info(`Retry parameter ${retry}`);
     if(retry) {
+       core.info(`Sleeping for 1 second`);
       await sleep(1000);
       await run();
     }
