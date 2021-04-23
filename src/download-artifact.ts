@@ -4,10 +4,14 @@ import * as os from 'os'
 import {resolve} from 'path'
 import {Inputs, Outputs} from './constants'
 
-const sleep = t => new Promise(s => setTimeout(s, t));
-async function run(): Promise<void> {
+const retry = core.getInput(Inputs.Retry, {required: false})
+const retryTimeoutStr = core.getInput(Inputs.RetryTimeout, {required: false})
+const retryTimeout = parseInt(retryTimeoutStr || '60')
 
-  const retry = core.getInput(Inputs.Retry, {required: false})
+const startTime = new Date().getTime()
+
+const sleep = t => new Promise(s => setTimeout(s, t))
+async function run(): Promise<void> {
   try {
     const name = core.getInput(Inputs.Name, {required: false})
     const path = core.getInput(Inputs.Path, {required: false})
@@ -57,15 +61,17 @@ async function run(): Promise<void> {
     core.setOutput(Outputs.DownloadPath, resolvedPath)
     core.info('Artifact download has finished successfully')
   } catch (err) {
-    core.info(`Retry parameter ${retry}`);
-    if(retry) {
-       core.info(`Sleeping for 1 second`);
-      await sleep(1000);
-      await run();
+    core.error(err.message)
+    if (retry) {
+      const now = new Date().getTime()
+      if (now <= startTime + retryTimeout * 1000) {
+        core.info(`Retrying download`)
+        await sleep(1000)
+        await run()
+        return
+      }
     }
-    else {
-      core.setFailed(err.message)
-    }
+    core.setFailed(err.message)
   }
 }
 

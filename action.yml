@@ -11,6 +11,9 @@ inputs:
   retry:
     description: 'Should Retry'
     required: false
+  retry_timeout:
+    description: 'Should Retry Timeout (in seconds)'
+    required: false
 runs:
   using: 'node12'
   main: 'dist/index.js'
