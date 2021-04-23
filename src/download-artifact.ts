@@ -4,10 +4,13 @@ import * as os from 'os'
 import {resolve} from 'path'
 import {Inputs, Outputs} from './constants'
 
+const sleep = t => new Promise(s => setTimeout(s, t));
 async function run(): Promise<void> {
   try {
     const name = core.getInput(Inputs.Name, {required: false})
     const path = core.getInput(Inputs.Path, {required: false})
+    const retry = core.getInput(Inputs.Retry, {required: false})
+    const retryTimeOut = core.getInput(Inputs.RetryTimeout, {required: false})
 
     let resolvedPath
     // resolve tilde expansions, path.replace only replaces the first occurrence of a pattern
@@ -54,7 +57,13 @@ async function run(): Promise<void> {
     core.setOutput(Outputs.DownloadPath, resolvedPath)
     core.info('Artifact download has finished successfully')
   } catch (err) {
-    core.setFailed(err.message)
+    if(retry) {
+      await sleep(1000);
+      await run();
+    }
+    else {
+      core.setFailed(err.message)
+    }
   }
 }
 
